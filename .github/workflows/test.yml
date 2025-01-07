@@ -16,9 +16,9 @@ jobs:
     - uses: actions/checkout@v4
 
     ## See https://github.com/commercialhaskell/stack/issues/5754#issuecomment-1696156869
-    - name: Cache GHC installation
-      uses: actions/cache@v4
-      id: ghcup
+    - name: Restore GHC installation
+      id: ghcup-cache-restore
+      uses: actions/cache/restore@v4
       with:
         path: |
           ~/.ghcup/bin/*
@@ -28,20 +28,39 @@ jobs:
         key: ghcup-${{ env.GHC_VERSION }}
 
     - uses: haskell-actions/setup@v2
-      if: steps.ghcup.outputs.cache-hit != 'true'
+      if: steps.ghcup-cache-restore.outputs.cache-hit != 'true'
       with:
         ghc-version: ${{ env.GHC_VERSION }}
         # cabal-version: 'latest'. Omitted, but defaults to 'latest'
         enable-stack: true
         stack-version: "latest"
 
-    - name: Cache ~/.stack
-      uses: actions/cache@v4
+    - name: Cache GHC installation
+      id: ghcup-cache-save
+      if: steps.ghcup-cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          ~/.ghcup/bin/*
+          ~/.ghcup/cache/*
+          ~/.ghcup/config.yaml
+          ~/.ghcup/ghc/${{ env.GHC_VERSION }}
+        key: ${{ steps.ghcup-cache-restore.outputs.cache-primary-key }}
+
+    - name: Restore ~/.stack
+      id: stack-cache-restore
+      uses: actions/cache/restore@v4
       with:
         path: ~/.stack
         key: stack-global-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('test.cabal') }}
-        restore-keys: |
-          stack-global-
 
     - name: Run tests
       run: stack test --system-ghc
+
+    - name: Cache ~/.stack
+      id: stack-cache-save
+      if: always() && steps.stack-cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/.stack
+        key: ${{ steps.stack-cache-restore.outputs.cache-primary-key }}
