@@ -1,5 +1,7 @@
 # Haskell assignment base
 
+<img alt="points bar" align="right" height="36" src="../../blob/badges/.github/badges/points-bar.svg" />
+
 Provides basic build and test automation via [stack](https://haskellstack.org).
 
 ## Building
