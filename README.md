@@ -6,10 +6,10 @@ Provides basic build and test automation via [stack](https://haskellstack.org).
 
 ## Building
 
-Run following command to run build example source:
+Run following command to build example source:
 
 ```bash
-stack build
+stack build --system-ghc
 ```
 
 ## Testing
@@ -17,5 +17,5 @@ stack build
 Run following command to run all tests:
 
 ```bash
-stack test
+stack test --system-ghc
 ```
