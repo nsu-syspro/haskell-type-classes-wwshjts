@@ -15,12 +15,33 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    ## See https://github.com/commercialhaskell/stack/issues/5754#issuecomment-1696156869
+    - name: Cache GHC installation
+      uses: actions/cache@v4
+      id: ghcup
+      with:
+        path: |
+          ~/.ghcup/bin/*
+          ~/.ghcup/cache/*
+          ~/.ghcup/config.yaml
+          ~/.ghcup/ghc/${{ env.GHC_VERSION }}
+        key: ghcup-${{ env.GHC_VERSION }}
+
     - uses: haskell-actions/setup@v2
+      if: steps.ghcup.outputs.cache-hit != 'true'
       with:
         ghc-version: ${{ env.GHC_VERSION }}
         # cabal-version: 'latest'. Omitted, but defaults to 'latest'
         enable-stack: true
         stack-version: "latest"
+
+    - name: Cache ~/.stack
+      uses: actions/cache@v4
+      with:
+        path: ~/.stack
+        key: stack-global-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('test.cabal') }}
+        restore-keys: |
+          stack-global-
 
     - name: Run tests
       run: stack test --system-ghc
