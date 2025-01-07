@@ -1,0 +1,26 @@
+name: Test
+
+on: push
+
+env:
+  # Corresponds to lts-21.25
+  #   https://www.stackage.org/lts-21.25
+  GHC_VERSION: 9.4.8
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: haskell-actions/setup@v2
+      with:
+        ghc-version: ${{ env.GHC_VERSION }}
+        # cabal-version: 'latest'. Omitted, but defaults to 'latest'
+        enable-stack: true
+        stack-version: "latest"
+
+    - name: Run tests
+      run: stack test --system-ghc
