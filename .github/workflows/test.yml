@@ -8,8 +8,7 @@ env:
   GHC_VERSION: 9.4.8
 
 jobs:
-  build:
-
+  run-tests:
     runs-on: ubuntu-latest
 
     steps:
