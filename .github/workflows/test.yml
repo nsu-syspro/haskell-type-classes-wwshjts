@@ -54,8 +54,8 @@ jobs:
         path: ~/.stack
         key: stack-global-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('test.cabal') }}
 
-    - name: Run tests
-      run: stack test --system-ghc
+    - name: Build dependencies
+      run: stack test --system-ghc --only-dependencies
 
     - name: Cache ~/.stack
       id: stack-cache-save
@@ -64,3 +64,6 @@ jobs:
       with:
         path: ~/.stack
         key: ${{ steps.stack-cache-restore.outputs.cache-primary-key }}
+
+    - name: Run tests
+      run: stack test --system-ghc
