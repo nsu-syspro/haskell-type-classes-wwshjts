@@ -3,4 +3,7 @@
 module Example where
 
 factorial :: Integer -> Integer
-factorial = error "TODO: define factorial"
+-- Stub implementation for use in actual assignment
+-- factorial = error "TODO: define factorial"
+factorial 0 = 1
+factorial n = n * factorial (n - 1)
