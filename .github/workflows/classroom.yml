@@ -1,0 +1,144 @@
+name: Autograding Tests
+'on':
+  push:
+    # Only run on main branch to avoid triggering infinitely,
+    # when points bar branch is updated (see update-points-bar job below)
+    branches:
+    - 'main'
+  workflow_dispatch:
+  repository_dispatch:
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+env:
+  # Corresponds to lts-21.25
+  #   https://www.stackage.org/lts-21.25
+  GHC_VERSION: 9.4.8
+
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    outputs:
+      # Setup outputs for update-points-bar job below
+      points: ${{ steps.autograder.outputs.points }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    ## See https://github.com/commercialhaskell/stack/issues/5754#issuecomment-1696156869
+    - name: Restore GHC installation
+      id: ghcup-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ~/.ghcup/bin/*
+          ~/.ghcup/cache/*
+          ~/.ghcup/config.yaml
+          ~/.ghcup/ghc/${{ env.GHC_VERSION }}
+        key: ghcup-${{ env.GHC_VERSION }}
+
+    - uses: haskell-actions/setup@v2
+      if: steps.ghcup-cache-restore.outputs.cache-hit != 'true'
+      with:
+        ghc-version: ${{ env.GHC_VERSION }}
+        # cabal-version: 'latest'. Omitted, but defaults to 'latest'
+        enable-stack: true
+        stack-version: "latest"
+
+    - name: Cache GHC installation
+      id: ghcup-cache-save
+      if: steps.ghcup-cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          ~/.ghcup/bin/*
+          ~/.ghcup/cache/*
+          ~/.ghcup/config.yaml
+          ~/.ghcup/ghc/${{ env.GHC_VERSION }}
+        key: ${{ steps.ghcup-cache-restore.outputs.cache-primary-key }}
+
+    - name: Restore ~/.stack
+      id: stack-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.stack
+        key: stack-global-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('test.cabal') }}
+
+    - name: Build dependencies
+      run: stack test --system-ghc --only-dependencies
+
+    - name: Cache ~/.stack
+      id: stack-cache-save
+      if: always() && steps.stack-cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/.stack
+        key: ${{ steps.stack-cache-restore.outputs.cache-primary-key }}
+
+    - name: Run tests
+      run: stack test --system-ghc
+
+    - name: 'Task #1'
+      id: task-1
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Task #1'
+        setup-command: '' # (Optional) Run before the test is run.
+        command: stack test --system-ghc --test-arguments "-p Example"
+        timeout: 1 # The amount of minutes the test is allowed to run before it is killed. Maximum 60 minutes.
+        max-score: 6 # (Optional) The amount of points awarded if the test passes.
+
+    - name: 'Task #2'
+      id: task-2
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Task #2'
+        setup-command: '' # (Optional) Run before the test is run.
+        command: stack test --system-ghc --test-arguments "-p Example"
+        timeout: 1 # The amount of minutes the test is allowed to run before it is killed. Maximum 60 minutes.
+        max-score: 4 # (Optional) The amount of points awarded if the test passes.
+
+
+    #############################
+    # Autograding reporter
+    #
+    # IMPORTANT: update env variables and runners below to use actual tests defined above!
+    #
+    - name: Autograding Reporter
+      id: autograder
+      uses: liontiger23/autograding-grading-reporter@v1
+      env:
+        TASK-1_RESULTS: "${{steps.task-1.outputs.result}}"
+        TASK-2_RESULTS: "${{steps.task-2.outputs.result}}"
+      with:
+        runners: task-1,task-2
+
+  ############################
+  # Generate points bar badge
+  #
+  # Add badge to README.md with
+  #
+  #   ![Points](../../blob/badges/.github/badges/points-bar.svg)
+  #
+  # or if you want to float it to the right:
+  #
+  #   <img alt="Points" align="right" height="36" src="../../blob/badges/.github/badges/points-bar.svg" />
+  #
+  # Note: will run even if autograding failed thanks to `if: success() || failure()`.
+  #
+  update-points-bar:
+    needs: run-autograding-tests
+    if: ${{ (success() || failure()) && needs.run-autograding-tests.outputs.points }}
+    uses: markpatterson27/points-bar/.github/workflows/reusable-workflow.yml@main
+    permissions:
+      contents: write
+    with:
+      points: ${{ needs.run-autograding-tests.outputs.points }}
+      path: '.github/badges/points-bar.svg'
+      label: 'Points'
+      branch: badges
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

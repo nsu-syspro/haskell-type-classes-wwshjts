@@ -1,7 +1,5 @@
 name: Test
 
-on: push
-
 env:
   # Corresponds to lts-21.25
   #   https://www.stackage.org/lts-21.25
