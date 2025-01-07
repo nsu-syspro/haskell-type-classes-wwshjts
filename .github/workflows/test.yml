@@ -1,0 +1,66 @@
+name: Test
+
+on: push
+
+env:
+  # Corresponds to lts-21.25
+  #   https://www.stackage.org/lts-21.25
+  GHC_VERSION: 9.4.8
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    ## See https://github.com/commercialhaskell/stack/issues/5754#issuecomment-1696156869
+    - name: Restore GHC installation
+      id: ghcup-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ~/.ghcup/bin/*
+          ~/.ghcup/cache/*
+          ~/.ghcup/config.yaml
+          ~/.ghcup/ghc/${{ env.GHC_VERSION }}
+        key: ghcup-${{ env.GHC_VERSION }}
+
+    - uses: haskell-actions/setup@v2
+      if: steps.ghcup-cache-restore.outputs.cache-hit != 'true'
+      with:
+        ghc-version: ${{ env.GHC_VERSION }}
+        # cabal-version: 'latest'. Omitted, but defaults to 'latest'
+        enable-stack: true
+        stack-version: "latest"
+
+    - name: Cache GHC installation
+      id: ghcup-cache-save
+      if: steps.ghcup-cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          ~/.ghcup/bin/*
+          ~/.ghcup/cache/*
+          ~/.ghcup/config.yaml
+          ~/.ghcup/ghc/${{ env.GHC_VERSION }}
+        key: ${{ steps.ghcup-cache-restore.outputs.cache-primary-key }}
+
+    - name: Restore ~/.stack
+      id: stack-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.stack
+        key: stack-global-${{ hashFiles('stack.yaml.lock') }}-${{ hashFiles('test.cabal') }}
+
+    - name: Run tests
+      run: stack test --system-ghc
+
+    - name: Cache ~/.stack
+      id: stack-cache-save
+      if: always() && steps.stack-cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/.stack
+        key: ${{ steps.stack-cache-restore.outputs.cache-primary-key }}
