@@ -66,4 +66,4 @@ jobs:
         key: ${{ steps.stack-cache-restore.outputs.cache-primary-key }}
 
     - name: Run tests
-      run: stack test --system-ghc
+      run: stack test --system-ghc --test-arguments "--color always"
