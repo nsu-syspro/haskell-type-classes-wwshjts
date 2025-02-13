@@ -1,15 +1,15 @@
-module ExampleSuite where
+module Task1Suite where
 
 import Test.Tasty
 import Test.Tasty.SmallCheck as SC
 import Test.Tasty.QuickCheck as QC
 import Test.Tasty.HUnit
 
-import Example
+import Task1
 
 
-exampleTests :: TestTree
-exampleTests = testGroup "Example"
+task1Tests :: TestTree
+task1Tests = testGroup "Task1"
   [ SC.testProperty "n! == n * (n-1)! (SmallCheck)" $
       \x -> x > 0 SC.==> factorial x == x * factorial (x - 1)
 

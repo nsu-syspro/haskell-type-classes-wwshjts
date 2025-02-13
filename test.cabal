@@ -4,11 +4,8 @@ version:       0.1.0.0
 
 library
   exposed-modules:
-    -- Modules to be tested
-    -- Example:
-    --     HW1
-    --   , HW2
-      Example
+      Task1
+    , Task2
   hs-source-dirs: src
   ghc-options: -Werror -Wall
   build-depends: base >=4.7 && <5

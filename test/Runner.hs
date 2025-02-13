@@ -1,9 +1,13 @@
 import Test.Tasty
 
-import ExampleSuite
+import Task1Suite
+import Task2Suite
 
 main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [exampleTests]
+tests = testGroup "Tests"
+  [ task1Tests
+  , task2Tests
+  ]
