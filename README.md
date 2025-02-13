@@ -95,7 +95,7 @@ Implement "sumtorial" of n.
 
 $$
 f(n) =\begin{cases}
-1& \text{if } n == 0\\
+1& \text{if } n = 0\\
 \sum_{i=1}^n{i}& \text{otherwise}
 \end{cases}
 $$
