@@ -2,6 +2,9 @@
 
 <img alt="points bar" align="right" height="36" src="../../blob/badges/.github/badges/points-bar.svg" />
 
+<details>
+<summary>Guidelines</summary>
+
 ## Guidelines
 
 When solving the homework, strive to create not just code that works, but code that is readable and concise.
@@ -69,6 +72,8 @@ Ok, one module loaded.
 > ```bash
 > ghci> :reload
 > ```
+
+</details>
 
 ## Task 1 (6 points)
 
