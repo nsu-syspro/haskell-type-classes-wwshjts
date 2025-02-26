@@ -7,15 +7,13 @@ module Task2 where
 -- that are not supposed to be used in this assignment
 import Prelude hiding (foldl, foldr, sum)
 
------------------------------------
---
--- Computes sum from 1 to n
+-- | Computes sum from 1 to n
 --
 -- Usage example:
 --
 -- >>> sumtorial 5
 -- 16
-
+--
 sumtorial :: Integer -> Integer
 -- Stub implementation for use in actual assignment
 -- factorial = error "TODO: define sumtorial"

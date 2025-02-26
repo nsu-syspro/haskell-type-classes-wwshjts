@@ -7,9 +7,7 @@ module Task1 where
 -- that are not supposed to be used in this assignment
 import Prelude hiding (foldl, foldr, product)
 
------------------------------------
---
--- Computes factorial of given number
+-- | Computes factorial of given number
 --
 --   n! = 1 * 2 * ... * n
 --
@@ -17,7 +15,7 @@ import Prelude hiding (foldl, foldr, product)
 --
 -- >>> factorial 5
 -- 120
-
+--
 factorial :: Integer -> Integer
 -- Stub implementation for use in actual assignment
 -- factorial = error "TODO: define factorial"
