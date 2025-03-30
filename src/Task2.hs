@@ -51,7 +51,9 @@ class Eval a op where
   -- | Evaluates given binary operation with provided arguments
   evalBinOp :: op -> a -> a -> a
 
--- | Evaluates given 'Expr'
+-- | Evaluates given 'Expr' using given association list of variable values
+--
+-- Returns 'Nothing' in case appropriate variable value is missing.
 --
 -- Usage example:
 --
@@ -64,20 +66,6 @@ class Eval a op where
 --
 evalExpr :: (Eval a op) => [(String, a)] -> Expr a op -> Maybe a
 evalExpr = error "TODO: define evalExpr"
-
--- | Parses given expression in Reverse Polish Notation and evaluates it
--- using given association list of variable values
---
--- Returns 'Nothing' in case the expression could not be parsed
--- or in case appropriate variable value is missing.
---
--- The 'Reify' function is required to reconcile abstract type
--- of intermediate 'Expr' expression with concrete type using 'a' and 'op'.
---
-evaluate :: (Eval a op, Parse a, Parse op) => Reify a op -> [(String, a)] -> String -> Maybe a
-evaluate reify m s = case parse s of
-  Just e -> evalExpr m (reify e)
-  Nothing -> Nothing
 
 -- | Parses given integer expression in Reverse Polish Notation and evaluates it
 -- using given association list of variable values
@@ -102,6 +90,20 @@ evaluate reify m s = case parse s of
 --
 evaluateInteger :: [(String, Integer)] -> String -> Maybe Integer
 evaluateInteger = error "TODO: define evaluateInteger"
+
+-- | Parses given expression in Reverse Polish Notation and evaluates it
+-- using given association list of variable values
+--
+-- Returns 'Nothing' in case the expression could not be parsed
+-- or in case appropriate variable value is missing.
+--
+-- The 'Reify' function is required to reconcile generic type
+-- of intermediate 'Expr' expression with concrete type using 'a' and 'op'.
+--
+evaluate :: (Eval a op, Parse a, Parse op) => Reify a op -> [(String, a)] -> String -> Maybe a
+evaluate reify m s = case parse s of
+  Just e -> evalExpr m (reify e)
+  Nothing -> Nothing
 
 -- * Helpers
 
