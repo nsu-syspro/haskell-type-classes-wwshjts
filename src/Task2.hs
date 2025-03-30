@@ -35,7 +35,7 @@ data IntOp = Add | Mul | Sub
 -- >>> parse "2 3 -" :: Maybe (Expr Integer IntOp)
 -- Just (BinOp Sub (Lit 2) (Lit 3))
 -- >>> parse "3 2 * 3 +" :: Maybe (Expr Integer IntOp)
--- Just (BinOp Add (Lit 3) (BinOp Mul (Lit 2) (Lit 3)))
+-- Just (BinOp Add (BinOp Mul (Lit 3) (Lit 2)) (Lit 3))
 -- >>> parse "2 +" :: Maybe (Expr Integer IntOp)
 -- Nothing
 -- >>> parse "2 3" :: Maybe (Expr Integer IntOp)

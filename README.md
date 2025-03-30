@@ -139,7 +139,7 @@ evalIExpr :: IExpr -> Integer
 2
 >>> evalIExpr (Add (Lit 2) (Lit 3))
 5
->>> evalIExpr (Add (Mul (Lit 2) (Lit 3)) (Lit 3))
+>>> evalIExpr (Add (Mul (Lit 3) (Lit 2)) (Lit 3))
 9
 ```
 
@@ -179,9 +179,9 @@ instance Parse IExpr where
 >>> parse "2" :: Maybe IExpr
 Just (Lit 2)
 >>> parse "2 3 +" :: Maybe IExpr
-Just (Add (Lit 3) (Lit 2))
+Just (Add (Lit 2) (Lit 3))
 >>> parse "3 2 * 3 +" :: Maybe IExpr
-Just (Add (Lit 3) (Mul (Lit 2) (Lit 3)))
+Just (Add (Mul (Lit 3) (Lit 2)) (Lit 3))
 >>> parse "2 +" :: Maybe IExpr
 Nothing
 >>> parse "2 3" :: Maybe IExpr
@@ -274,7 +274,7 @@ Just (Lit 2)
 >>> parse "2 3 -" :: Maybe (Expr Integer IntOp)
 Just (BinOp Sub (Lit 2) (Lit 3))
 >>> parse "3 2 * 3 +" :: Maybe (Expr Integer IntOp)
-Just (BinOp Add (Lit 3) (BinOp Mul (Lit 2) (Lit 3)))
+Just (BinOp Add (BinOp Mul (Lit 3) (Lit 2)) (Lit 3))
 >>> parse "2 +" :: Maybe (Expr Integer IntOp)
 Nothing
 >>> parse "2 3" :: Maybe (Expr Integer IntOp)

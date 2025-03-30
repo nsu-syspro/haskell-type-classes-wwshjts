@@ -24,7 +24,7 @@ data IExpr =
 -- 2
 -- >>> evalIExpr (Add (Lit 2) (Lit 3))
 -- 5
--- >>> evalIExpr (Add (Mul (Lit 2) (Lit 3)) (Lit 3))
+-- >>> evalIExpr (Add (Mul (Lit 3) (Lit 2)) (Lit 3))
 -- 9
 --
 evalIExpr :: IExpr -> Integer
@@ -46,9 +46,9 @@ class Parse a where
 -- >>> parse "2" :: Maybe IExpr
 -- Just (Lit 2)
 -- >>> parse "2 3 +" :: Maybe IExpr
--- Just (Add (Lit 3) (Lit 2))
+-- Just (Add (Lit 2) (Lit 3))
 -- >>> parse "3 2 * 3 +" :: Maybe IExpr
--- Just (Add (Lit 3) (Mul (Lit 2) (Lit 3)))
+-- Just (Add (Mul (Lit 3) (Lit 2)) (Lit 3))
 -- >>> parse "2 +" :: Maybe IExpr
 -- Nothing
 -- >>> parse "2 3" :: Maybe IExpr
