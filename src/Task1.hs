@@ -14,6 +14,8 @@ data IExpr =
   | Mul IExpr IExpr
   deriving Show
 
+-- * Evaluation
+
 -- | Evaluates given 'IExpr'
 --
 -- Usage example:
@@ -55,7 +57,7 @@ class Parse a where
 instance Parse IExpr where
   parse = error "TODO: define parse (Parse IExpr)"
 
--- * Evaluation
+-- * Evaluation with parsing
 
 -- | Parses given expression in Reverse Polish Notation and evaluates it
 --
