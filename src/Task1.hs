@@ -41,7 +41,8 @@ class Parse a where
 --
 -- Usage example:
 --
--- >>> parse "2" :: Maybe IExpr Just (Lit 2)
+-- >>> parse "2" :: Maybe IExpr
+-- Just (Lit 2)
 -- >>> parse "2 3 +" :: Maybe IExpr
 -- Just (Add (Lit 3) (Lit 2))
 -- >>> parse "3 2 * 3 +" :: Maybe IExpr
