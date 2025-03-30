@@ -258,7 +258,7 @@ data IntOp = Add | Mul | Sub
 ### Parsing
 
 Define an instance of `Parse` for `Expr` that parses expression from RPN.
-This time, because `Expr` is parameterized with types `a` and `op`, you will need to
+Note that because `Expr` is parameterized with types `a` and `op`, you will need to
 require these types to be instances of `Parse` as well:
 
 ```haskell
@@ -283,13 +283,13 @@ Nothing
 
 ### Evaluation of operations
 
-Evaluating these generalized expressions is not so simple as it was in first task,
+Evaluating these generalized expressions is not as simple as it was in first task,
 because semantics of the same binary operation may be different depending on domain type
 (e.g. addition operation must be evaluated completely differently in `Integer` expressions
 and in `Float` expressions).
 
 In order to solve this problem we can introduce yet another type class `Eval a op`,
-parameterized with both the domain type and binary operations, allowing us
+parameterized with both the domain type `a` and binary operations `op`, allowing us
 to define separate implementations for operations in different contexts:
 
 ```haskell
@@ -298,6 +298,8 @@ class Eval a op where
   -- | Evaluates given binary operation with provided arguments
   evalBinOp :: op -> a -> a -> a
 ```
+
+Implement instance of `Eval` for `Integer` with `IntOp` operations.
 
 > [!NOTE]
 >
@@ -310,8 +312,6 @@ class Eval a op where
 > ```
 >
 > In modern Haskell versions (`GHC2021` and `GHC2024`) this pragma is enabled by default.
-
-Implement instance of `Eval` for `Integer` with `IntOp` operations.
 
 ### Evaluation of expressions
 
@@ -361,21 +361,21 @@ evaluateInteger :: [(String, Integer)] -> String -> Maybe Integer
 **Example:**
 
 ```haskell
--- >>> evaluateInteger [] "2"
--- Just 2
--- >>> evaluateInteger [("x", 3)] "2 x -"
--- Just (-1)
--- >>> evaluateInteger [("x", 3)] "2 y -"
--- Nothing
--- >>> evaluateInteger [] "3 2 * 3 +"
--- Just 9
--- >>> evaluateInteger [] "2 +"
--- Nothing
--- >>> evaluateInteger [] "2 3"
--- Nothing
+>>> evaluateInteger [] "2"
+Just 2
+>>> evaluateInteger [("x", 3)] "2 x -"
+Just (-1)
+>>> evaluateInteger [("x", 3)] "2 y -"
+Nothing
+>>> evaluateInteger [] "3 2 * 3 +"
+Just 9
+>>> evaluateInteger [] "2 +"
+Nothing
+>>> evaluateInteger [] "2 3"
+Nothing
 ```
 
-> [!INFO]
+> [!IMPORTANT]
 >
 > Ideally we would have the following function that will use `parse` and `evalExpr`
 > in its definition:
@@ -399,10 +399,10 @@ evaluateInteger :: [(String, Integer)] -> String -> Maybe Integer
 > ```
 > 
 > We accidentally defined way too general function,
-> such that compiler cannot prove that the expression `e :: Expr a0 op0`
-> has the same `a` and `op` which are used in constraints.
+> such that compiler cannot prove that the expression `e`
+> has type `Expr a op` with the same `a` and `op` which are used in constraints.
 >
-> Even specifying explicit type of `e :: Expr a op` will not work,
+> Even specifying explicit type as `e :: Expr a op` will not work,
 > because `a` and `op` in this type signature have no relation
 > to `a` and `op` in constraints. In this case they are just some random
 > names for generic type parameters (we might as well have specified it
@@ -432,7 +432,7 @@ evaluateInteger :: [(String, Integer)] -> String -> Maybe Integer
 ## Task 3 (3 points)
 
 The last task is to implement brute force [SAT solver](https://en.wikipedia.org/wiki/SAT_solver)
-using representation `Expr` (from previous task) for input Boolean formula.
+using representation `Expr` (from previous task) for Boolean formulas in Reverse Polish Notation.
 
 > In computer science and formal methods, a SAT solver is a computer program which aims to solve the
 > [Boolean satisfiability problem](https://en.wikipedia.org/wiki/Boolean_satisfiability_problem) (SAT).
