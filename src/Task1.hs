@@ -1,7 +1,9 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE GADTs #-}
 -- The above pragma enables all warnings
 
 module Task1 where
+import Data.Char (isDigit)
 
 -- * Expression data type
 
@@ -13,6 +15,7 @@ data IExpr =
   | Add IExpr IExpr
   | Mul IExpr IExpr
   deriving Show
+    
 
 -- * Evaluation
 
@@ -28,7 +31,9 @@ data IExpr =
 -- 9
 --
 evalIExpr :: IExpr -> Integer
-evalIExpr = error "TODO: define evalIExpr"
+evalIExpr (Lit t)   = t
+evalIExpr (Add l r) = evalIExpr l + evalIExpr r
+evalIExpr (Mul l r) = evalIExpr l * evalIExpr r 
 
 -- * Parsing
 
@@ -55,7 +60,29 @@ class Parse a where
 -- Nothing
 --
 instance Parse IExpr where
-  parse = error "TODO: define parse (Parse IExpr)"
+  parse str = case sequence $ tokinize str of
+                Just tkns -> buildAst [] tkns
+                Nothing   -> Nothing 
+
+
+data Token = LitT Integer | MulT | AddT deriving Show
+
+tokinize :: String -> [Maybe Token]
+tokinize strs = map toToken (words strs)
+
+toToken :: String -> Maybe Token
+toToken ch
+    | ch == "*"      = Just MulT
+    | ch == "+"      = Just AddT
+    | all isDigit ch = Just (LitT (read ch))
+    | otherwise      = Nothing
+
+buildAst :: [IExpr] -> [Token] -> Maybe IExpr
+buildAst [expr] []                     = Just expr
+buildAst exprs (LitT x : tkns)         = buildAst (Lit x : exprs) tkns
+buildAst (l : r : exprs) (AddT : tkns) = buildAst (Add l r : exprs) tkns
+buildAst (l : r : exprs) (MulT : tkns) = buildAst (Mul l r : exprs) tkns
+buildAst _ _                           = Nothing
 
 -- * Evaluation with parsing
 
@@ -77,4 +104,6 @@ instance Parse IExpr where
 -- Nothing
 --
 evaluateIExpr :: String -> Maybe Integer
-evaluateIExpr = error "TODO: define evaluateIExpr"
+evaluateIExpr s = case parse s :: Maybe IExpr of
+                    Just expr -> Just $ evalIExpr expr
+                    Nothing -> Nothing
