@@ -67,15 +67,15 @@ instance Parse IExpr where
 
 data Token = LitT Integer | MulT | AddT deriving Show
 
-tokinize :: String -> [Maybe Token]
-tokinize strs = map toToken (words strs)
+instance Parse Token where
+    parse ch
+        | ch == "*"      = Just MulT
+        | ch == "+"      = Just AddT
+        | all isDigit ch = Just (LitT (read ch))
+        | otherwise      = Nothing
 
-toToken :: String -> Maybe Token
-toToken ch
-    | ch == "*"      = Just MulT
-    | ch == "+"      = Just AddT
-    | all isDigit ch = Just (LitT (read ch))
-    | otherwise      = Nothing
+tokinize :: String -> [Maybe Token]
+tokinize strs = map parse (words strs)
 
 buildAst :: [IExpr] -> [Token] -> Maybe IExpr
 buildAst [expr] []                     = Just expr
